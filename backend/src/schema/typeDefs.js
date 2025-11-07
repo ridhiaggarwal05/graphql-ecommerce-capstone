@@ -1,5 +1,4 @@
-// backend/src/schema/typeDefs.js
-const { gql } = require('graphql-tag');
+const { gql } = require("graphql-tag");
 
 const typeDefs = gql`
   scalar DateTime
@@ -59,9 +58,14 @@ const typeDefs = gql`
   type Mutation {
     register(name: String, email: String!, password: String!): AuthPayload
     login(email: String!, password: String!): AuthPayload
-
     createCategory(name: String!, slug: String): Category
-    createProduct(name: String!, description: String, price: Float!, inStock: Boolean, categoryId: ID): Product
+    createProduct(
+      name: String!
+      description: String
+      price: Float!
+      inStock: Boolean
+      categoryId: ID
+    ): Product
   }
 `;
 

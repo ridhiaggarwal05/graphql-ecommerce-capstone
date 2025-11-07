@@ -20,22 +20,22 @@ const GET_DATA = gql`
 function App() {
   const { loading, error, data } = useQuery(GET_DATA);
 
-  if (loading) return <p className="text-center text-gray-500 mt-10">Loading products...</p>;
-  if (error) return <p className="text-center text-red-500 mt-10">Error: {error.message}</p>;
+  if (loading) return <p className="text-center text-gray-600 mt-10">Loading...</p>;
+  if (error) return <p className="text-center text-red-600 mt-10">Error: {error.message}</p>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 p-8">
-      <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-lg p-10">
-        <h1 className="text-4xl font-extrabold text-center text-purple-700 mb-6">
-          🛍️ My Beautiful E-Commerce Store
+    <div className="min-h-screen animate-gradient bg-gradient-to-r from-pink-300 via-purple-300 to-blue-300 p-10 text-gray-800">
+      <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-xl p-10 bg-opacity-90 backdrop-blur-sm">
+        <h1 className="text-4xl font-extrabold text-center text-purple-700 mb-8">
+          🛍️ E-Commerce Dashboard
         </h1>
 
-        <h2 className="text-2xl font-semibold text-gray-700 mb-3">📂 Categories</h2>
-        <div className="flex flex-wrap gap-3 mb-8">
+        <h2 className="text-2xl font-semibold text-gray-700 mb-4">📂 Categories</h2>
+        <div className="flex flex-wrap gap-3 mb-10">
           {data.categories.map((c) => (
             <span
               key={c.id}
-              className="px-4 py-2 bg-purple-100 text-purple-800 rounded-full shadow-sm hover:bg-purple-200 transition"
+              className="px-4 py-2 bg-purple-100 text-purple-800 rounded-full hover:bg-purple-200 transition"
             >
               {c.name}
             </span>
@@ -43,13 +43,13 @@ function App() {
         </div>
 
         <h2 className="text-2xl font-semibold text-gray-700 mb-4">🛒 Products</h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {data.products.map((p) => (
             <div
               key={p.id}
-              className="bg-gradient-to-br from-white to-purple-50 rounded-xl shadow-md hover:shadow-xl transition p-5"
+              className="bg-gradient-to-br from-white to-purple-50 rounded-xl shadow-md hover:shadow-lg transition p-6"
             >
-              <h3 className="text-xl font-semibold text-gray-800">{p.name}</h3>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">{p.name}</h3>
               <p className="text-gray-500 mb-2">₹{p.price}</p>
               <span
                 className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
