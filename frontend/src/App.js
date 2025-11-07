@@ -1,5 +1,18 @@
-import React from "react";
-import { gql, useQuery } from "@apollo/client";
+import React, { useState } from "react";
+import { gql, useQuery, useMutation } from "@apollo/client";
+
+const LOGIN = gql`
+  mutation Login($email: String!, $password: String!) {
+    login(email: $email, password: $password) {
+      token
+      user {
+        id
+        email
+        roles
+      }
+    }
+  }
+`;
 
 const GET_DATA = gql`
   query {
@@ -18,17 +31,87 @@ const GET_DATA = gql`
 `;
 
 function App() {
-  const { loading, error, data } = useQuery(GET_DATA);
+  const [token, setToken] = useState(localStorage.getItem("token"));
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  if (loading) return <p className="text-center text-gray-600 mt-10">Loading...</p>;
-  if (error) return <p className="text-center text-red-600 mt-10">Error: {error.message}</p>;
+  const [login, { loading: loginLoading, error: loginError }] = useMutation(LOGIN, {
+    onCompleted: (data) => {
+      const token = data.login.token;
+      setToken(token);
+      localStorage.setItem("token", token);
+    },
+  });
+
+  const { loading, error, data } = useQuery(GET_DATA, {
+    skip: !token, // don’t fetch until logged in
+    context: {
+      headers: { authorization: token ? `Bearer ${token}` : "" },
+    },
+  });
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    login({ variables: { email, password } });
+  };
+
+  // 🟣 If not logged in, show login screen
+  if (!token) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 animate-gradient">
+        <div className="bg-white bg-opacity-90 rounded-2xl shadow-xl p-10 max-w-sm w-full text-center">
+          <h1 className="text-3xl font-bold text-purple-700 mb-6">🔐 Login</h1>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
+              required
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
+              required
+            />
+            <button
+              type="submit"
+              className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-md transition"
+            >
+              {loginLoading ? "Logging in..." : "Login"}
+            </button>
+          </form>
+          {loginError && <p className="text-red-600 mt-3">Invalid credentials</p>}
+        </div>
+      </div>
+    );
+  }
+
+  // 🟢 After login, show dashboard
+  if (loading) return <p className="text-center mt-10">Loading...</p>;
+  if (error) return <p className="text-center text-red-500 mt-10">Error: {error.message}</p>;
 
   return (
     <div className="min-h-screen animate-gradient bg-gradient-to-r from-pink-300 via-purple-300 to-blue-300 p-10 text-gray-800">
       <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-xl p-10 bg-opacity-90 backdrop-blur-sm">
-        <h1 className="text-4xl font-extrabold text-center text-purple-700 mb-8">
-          🛍️ E-Commerce Dashboard
-        </h1>
+        <div className="flex justify-between items-center mb-10">
+          <h1 className="text-3xl font-extrabold text-purple-700">
+            🛍️ My Store Dashboard
+          </h1>
+          <button
+            onClick={() => {
+              localStorage.removeItem("token");
+              setToken(null);
+            }}
+            className="text-sm bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg"
+          >
+            Logout
+          </button>
+        </div>
 
         <h2 className="text-2xl font-semibold text-gray-700 mb-4">📂 Categories</h2>
         <div className="flex flex-wrap gap-3 mb-10">
